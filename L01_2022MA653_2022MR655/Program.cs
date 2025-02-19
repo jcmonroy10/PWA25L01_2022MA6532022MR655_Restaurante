@@ -1,3 +1,4 @@
+using L01_2022MA653_2022MR655.Models;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -7,7 +8,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers();
 
 //Inyección por dependencia del string de conexión al contexto
-builder.Services.AddDbContext<bibliotecaContext>(options =>
+builder.Services.AddDbContext<restauranteContext>(options =>
         options.UseSqlServer(
             builder.Configuration.GetConnectionString("bibliotecaDbConnection")
         )

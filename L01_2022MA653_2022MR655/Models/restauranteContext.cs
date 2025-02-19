@@ -1,11 +1,11 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.SqlServer;
 
 namespace L01_2022MA653_2022MR655.Models
 {
-    public class restauranteContext
+    public class restauranteContext : DbContext
     {
-        public restauranteContext(DbContextOptions<restauranteContext> options)
-       : base(options)
+        public restauranteContext(DbContextOptions<restauranteContext> options) : base(options)
         {
         }
 
