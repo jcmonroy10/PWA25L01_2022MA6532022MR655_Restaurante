@@ -73,18 +73,36 @@ namespace L01_2022MA653_2022MR655.Controllers
         [Route("eliminar/{id}")]
         public IActionResult EliminarPlato(int id)
         {
-            Plato? plato = (from p in _restauranteContexto.Platos where p.PlatoId ==id select p).FirstOrDefault();
+            using var transaction = _restauranteContexto.Database.BeginTransaction();
 
-            if (plato == null)
+            try
             {
-                return NotFound();
+                Plato? plato = _restauranteContexto.Platos.FirstOrDefault(p => p.PlatoId == id);
+
+                if (plato == null)
+                {
+                    return NotFound();
+                }
+
+                var pedidosAsociados = _restauranteContexto.Pedidos.Where(p => p.PlatoId == id).ToList();
+                if (pedidosAsociados.Any())
+                {
+                    _restauranteContexto.Pedidos.RemoveRange(pedidosAsociados);
+                }
+
+                _restauranteContexto.Platos.Remove(plato);
+
+                _restauranteContexto.SaveChanges();
+
+                transaction.Commit();
+
+                return Ok();
             }
-
-            _restauranteContexto.Platos.Attach(plato);
-            _restauranteContexto.Platos.Remove(plato);
-            _restauranteContexto.SaveChanges();
-
-            return Ok();
+            catch (Exception ex)
+            {
+                transaction.Rollback();
+                return BadRequest($"Error al eliminar el plato: {ex.Message}");
+            }
         }
 
         // Filtrar platos por nombre
