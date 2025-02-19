@@ -10,7 +10,7 @@ builder.Services.AddControllers();
 //Inyección por dependencia del string de conexión al contexto
 builder.Services.AddDbContext<restauranteContext>(options =>
         options.UseSqlServer(
-            builder.Configuration.GetConnectionString("bibliotecaDbConnection")
+            builder.Configuration.GetConnectionString("conexion")
         )
 );
 
