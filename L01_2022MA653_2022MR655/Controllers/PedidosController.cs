@@ -39,8 +39,116 @@ namespace L01_2022MA653_2022MR655.Controllers
             }
             return Ok(pedido);
         }
+        // POST: api/Pedidos
+        [HttpPost]
+        [Route("Add")]
+        public IActionResult GuardarPedido([FromBody] Pedido pedido)
+        {
+            try
+            {
+                if (pedido == null)
+                {
+                    return BadRequest("El pedido no puede estar vacío.");
+                }
+
+                bool existeCliente = _restauranteContext.Clientes.Any(c => c.ClienteId == pedido.ClienteId);
+                if (!existeCliente)
+                {
+                    return BadRequest($"El Cliente con ID {pedido.ClienteId} no existe.");
+                }
+
+                bool existeMotorista = _restauranteContext.Motoristas.Any(m => m.MotoristaId == pedido.MotoristaId);
+                if (!existeMotorista)
+                {
+                    return BadRequest($"El Motorista con ID {pedido.MotoristaId} no existe.");
+                }
+
+                bool existePlato = _restauranteContext.Platos.Any(p => p.PlatoId == pedido.PlatoId);
+                if (!existePlato)
+                {
+                    return BadRequest($"El Plato con ID {pedido.PlatoId} no existe.");
+                }
+
+
+                _restauranteContext.Pedidos.Add(pedido);
+                _restauranteContext.SaveChanges();
+
+                return Ok(new { mensaje = "Pedido guardado exitosamente", pedido });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Error interno del servidor: {ex.Message}");
+            }
+        }
+        // PUT: api/Pedidos/5
+        [HttpPut("Actualizar/{id}")]
+        public IActionResult Put(int id, [FromBody] Pedido pedido)
+        {
+            try
+            {
+                if (pedido == null)
+                {
+                    return BadRequest("El pedido no puede estar vacío.");
+                }
+
+                bool existeCliente = _restauranteContext.Clientes.Any(c => c.ClienteId == pedido.ClienteId);
+                if (!existeCliente)
+                {
+                    return BadRequest($"El Cliente con ID {pedido.ClienteId} no existe.");
+                }
+
+                bool existeMotorista = _restauranteContext.Motoristas.Any(m => m.MotoristaId == pedido.MotoristaId);
+                if (!existeMotorista)
+                {
+                    return BadRequest($"El Motorista con ID {pedido.MotoristaId} no existe.");
+                }
+
+                bool existePlato = _restauranteContext.Platos.Any(p => p.PlatoId == pedido.PlatoId);
+                if (!existePlato)
+                {
+                    return BadRequest($"El Plato con ID {pedido.PlatoId} no existe.");
+                }
+                Pedido? pedidoExistente = (from p in _restauranteContext.Pedidos where p.PedidoId == id select p).FirstOrDefault();
+
+                if (pedidoExistente == null)
+                {
+                    return NotFound();
+                }
+
+                pedidoExistente.MotoristaId = pedido.MotoristaId;
+                pedidoExistente.ClienteId = pedido.ClienteId;
+                pedidoExistente.PlatoId = pedido.PlatoId;
+                pedidoExistente.Cantidad = pedido.Cantidad;
+                pedidoExistente.Precio = pedido.Precio;
+
+                _restauranteContext.SaveChanges();
+
+                return NoContent();
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Error interno del servidor: {ex.Message}");
+            }
+        }
+        // DELETE: api/Pedidos/5
+        [HttpDelete]
+        [Route("eliminar/{id}")]
+        public IActionResult EliminarPlato(int id)
+        {
+            Pedido? pedido = (from p in _restauranteContext.Pedidos where p.PedidoId == id select p).FirstOrDefault();
+
+            if (pedido == null)
+            {
+                return NotFound();
+            }
+
+            _restauranteContext.Pedidos.Remove(pedido);
+            _restauranteContext.SaveChanges();
+
+            return NoContent();
+        }
         [HttpGet]
-        [Route("GetByName/{nombre}")]
+        [Route("GetByCliente/{nombre}")]
         public IActionResult GetPedidoPorNombreCliente(string nombre)
         {
             var pedidos = (from p in _restauranteContext.Pedidos
@@ -90,87 +198,11 @@ namespace L01_2022MA653_2022MR655.Controllers
             return Ok(pedidos);
         }
 
-        // POST: api/Pedidos
-        [HttpPost]
-        [Route("Add")]
-        public IActionResult GuardarPedido([FromBody] Pedido pedido)
-        {
-            try
-            {
-                if (pedido == null)
-                {
-                    return BadRequest("El pedido no puede estar vacío.");
-                }
-
-                bool existeCliente = _restauranteContext.Clientes.Any(c => c.ClienteId == pedido.ClienteId);
-                if (!existeCliente)
-                {
-                    return BadRequest($"El Cliente con ID {pedido.ClienteId} no existe.");
-                }
-
-                bool existeMotorista = _restauranteContext.Motoristas.Any(m => m.MotoristaId == pedido.MotoristaId);
-                if (!existeMotorista)
-                {
-                    return BadRequest($"El Motorista con ID {pedido.MotoristaId} no existe.");
-                }
-
-                bool existePlato = _restauranteContext.Platos.Any(p => p.PlatoId == pedido.PlatoId);
-                if (!existePlato)
-                {
-                    return BadRequest($"El Plato con ID {pedido.PlatoId} no existe.");
-                }
-
-                
-                _restauranteContext.Pedidos.Add(pedido);
-                _restauranteContext.SaveChanges();
-
-                return Ok(new { mensaje = "Pedido guardado exitosamente", pedido });
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, $"Error interno del servidor: {ex.Message}");
-            }
-        }
+        
 
 
-        // PUT: api/Pedidos/5
-        [HttpPut("{id}")]
-        public IActionResult Put(int id, [FromBody] Pedido pedido)
-        {
-            Pedido? pedidoExistente = (from p in _restauranteContext.Pedidos where p.PedidoId == id select p).FirstOrDefault();
+        
 
-            if (pedidoExistente == null)
-            {
-                return NotFound();
-            }
-
-            pedidoExistente.MotoristaId = pedido.MotoristaId;
-            pedidoExistente.ClienteId = pedido.ClienteId;
-            pedidoExistente.PlatoId = pedido.PlatoId;
-            pedidoExistente.Cantidad = pedido.Cantidad;
-            pedidoExistente.Precio = pedido.Precio;
-
-            _restauranteContext.SaveChanges();
-
-            return NoContent();
-        }
-
-        // DELETE: api/Pedidos/5
-        [HttpDelete]
-        [Route("eliminar/{id}")]
-        public IActionResult EliminarPlato(int id)
-        {
-            Pedido? pedido = (from p in _restauranteContext.Pedidos where p.PedidoId == id select p).FirstOrDefault();
-
-            if (pedido == null)
-            {
-                return NotFound();
-            }
-
-            _restauranteContext.Pedidos.Remove(pedido);
-            _restauranteContext.SaveChanges();
-
-            return NoContent();
-        }
+        
     }
 }
