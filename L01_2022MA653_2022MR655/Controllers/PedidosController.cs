@@ -39,6 +39,56 @@ namespace L01_2022MA653_2022MR655.Controllers
             }
             return Ok(pedido);
         }
+        [HttpGet]
+        [Route("GetByName/{nombre}")]
+        public IActionResult GetPedidoPorNombreCliente(string nombre)
+        {
+            var pedidos = (from p in _restauranteContext.Pedidos
+                           join c in _restauranteContext.Clientes
+                           on p.ClienteId equals c.ClienteId
+                           where c.NombreCliente.Contains(nombre)
+                           select new
+                           {
+                               c.NombreCliente,
+                               p.ClienteId,
+                               p.PlatoId,
+                               p.MotoristaId,
+                               p.Cantidad,
+                               p.Precio
+                           }).ToList(); 
+
+            if (pedidos.Count == 0)
+            {
+                return NotFound($"No se encontraron pedidos para el cliente '{nombre}'.");
+            }
+
+            return Ok(pedidos);
+        }
+        [HttpGet]
+        [Route("GetByMotorista/{nombre}")]
+        public IActionResult GetPedidoPorMotorista(string nombre)
+        {
+            var pedidos = (from p in _restauranteContext.Pedidos
+                           join m in _restauranteContext.Motoristas
+                           on p.MotoristaId equals m.MotoristaId
+                           where m.NombreMotorista.Contains(nombre)
+                           select new
+                           {
+                               m.NombreMotorista,
+                               p.ClienteId,
+                               p.PlatoId,
+                               p.MotoristaId,
+                               p.Cantidad,
+                               p.Precio
+                           }).ToList();
+
+            if (pedidos.Count == 0)
+            {
+                return NotFound($"No se encontraron pedidos para el motorista '{nombre}'.");
+            }
+
+            return Ok(pedidos);
+        }
 
         // POST: api/Pedidos
         [HttpPost]
