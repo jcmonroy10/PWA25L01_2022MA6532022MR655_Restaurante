@@ -93,19 +93,45 @@ namespace L01_2022MA653_2022MR655.Controllers
         // POST: api/Pedidos
         [HttpPost]
         [Route("Add")]
-        public IActionResult GuardarPedido([FromBody] Plato plato)
+        public IActionResult GuardarPedido([FromBody] Pedido pedido)
         {
             try
             {
-                _restauranteContext.Platos.Add(plato);
+                if (pedido == null)
+                {
+                    return BadRequest("El pedido no puede estar vacío.");
+                }
+
+                bool existeCliente = _restauranteContext.Clientes.Any(c => c.ClienteId == pedido.ClienteId);
+                if (!existeCliente)
+                {
+                    return BadRequest($"El Cliente con ID {pedido.ClienteId} no existe.");
+                }
+
+                bool existeMotorista = _restauranteContext.Motoristas.Any(m => m.MotoristaId == pedido.MotoristaId);
+                if (!existeMotorista)
+                {
+                    return BadRequest($"El Motorista con ID {pedido.MotoristaId} no existe.");
+                }
+
+                bool existePlato = _restauranteContext.Platos.Any(p => p.PlatoId == pedido.PlatoId);
+                if (!existePlato)
+                {
+                    return BadRequest($"El Plato con ID {pedido.PlatoId} no existe.");
+                }
+
+                
+                _restauranteContext.Pedidos.Add(pedido);
                 _restauranteContext.SaveChanges();
-                return Ok();
+
+                return Ok(new { mensaje = "Pedido guardado exitosamente", pedido });
             }
             catch (Exception ex)
             {
-                return BadRequest(ex.Message);
+                return StatusCode(500, $"Error interno del servidor: {ex.Message}");
             }
         }
+
 
         // PUT: api/Pedidos/5
         [HttpPut("{id}")]
