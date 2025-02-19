@@ -30,6 +30,18 @@ namespace L01_2022MA653_2022MR655.Controllers
             return Ok(listaCliente);
         }
 
+        //Leer por ID
+        [HttpGet("GetById/{id}")]
+        public IActionResult Get(int id)
+        {
+            var pedido = _restauranteContexto.Clientes.FirstOrDefault(c => c.ClienteId == id);
+            if (pedido == null)
+            {
+                return NotFound();
+            }
+            return Ok(pedido);
+        }
+
         //Crear
         [HttpPost]
         [Route("Add")]
