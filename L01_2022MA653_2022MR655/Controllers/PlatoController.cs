@@ -68,7 +68,7 @@ namespace L01_2022MA653_2022MR655.Controllers
             return Ok();    
         }
 
-        //Eliminar
+        //Eliminar cascada
         [HttpDelete]
         [Route("eliminar/{id}")]
         public IActionResult EliminarPlato(int id)
